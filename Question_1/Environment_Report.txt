@@ -1,0 +1,85 @@
+==============================
+Question 1 - Linux Environment Verification
+==============================
+
+1. Username and Groups
+Command Used:
+id
+
+Output:
+uid=1000(sudarshan_patil_h_j) gid=1000(sudarshan_patil_h_j) groups=1000(sudarshan_patil_h_j),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),100(users),1001(docker)
+
+Observation:
+The id command displays the current user identity information in Linux.
+It shows the username, user ID (UID), primary group ID (GID), and all groups associated with the account.
+This helps verify which account is currently logged in and what group-based permissions may apply.
+From the output, I confirmed the user account and its group memberships successfully.
+
+
+2. Current Shell
+Command Used:
+echo $SHELL
+
+Output:
+/bin/bash
+
+Observation:
+The echo $SHELL command shows the default login shell of the current user.
+A shell is the command interpreter used to interact with the Linux operating system.
+In my environment, the displayed shell indicates the command-line interface currently configured for my account.
+This is useful for understanding which shell environment and syntax rules are being used.
+
+
+3. Current Working Directory
+Command Used:
+pwd
+
+Output:
+/mnt/c/Users/Darshan Patil H J/Desktop/Linux-Assignment
+
+Observation:
+The pwd command prints the present working directory of the terminal session.
+It helps identify the exact location in the file system where commands are being executed.
+This is important because file creation, listing, and management operations depend on the current directory.
+The output confirmed the workspace path from which I performed the environment verification tasks.
+
+
+4. Files and Directories in Workspace
+Command Used:
+ls -la
+
+Output:
+total 0
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 13:45 .
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 11:08 ..
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 11:20 .git
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 13:45 Question_1
+-rwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j   28 Jul  3 11:20 README.md
+
+Observation:
+The ls -la command lists all files and directories in the current workspace, including hidden files.
+It also shows details such as permissions, owner, group, size, and modification date of each item.
+This command helped me inspect the contents of my working directory before proceeding with further tasks.
+The output confirmed the files and folders currently available in the workspace.
+
+
+5. Network Connectivity Verification
+Command Used:
+ping -c 4 google.com
+
+Output:
+PING google.com (142.251.43.46) 56(84) bytes of data.
+64 bytes from pnmaaa-av-in-f14.1e100.net (142.251.43.46): icmp_seq=1 ttl=111 time=60.0 ms
+64 bytes from pnmaaa-av-in-f14.1e100.net (142.251.43.46): icmp_seq=2 ttl=111 time=68.7 ms
+64 bytes from pnmaaa-av-in-f14.1e100.net (142.251.43.46): icmp_seq=3 ttl=111 time=70.4 ms
+64 bytes from pnmaaa-av-in-f14.1e100.net (142.251.43.46): icmp_seq=4 ttl=111 time=61.2 ms
+
+--- google.com ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3117ms
+rtt min/avg/max/mdev = 59.974/65.069/70.430/4.537 ms
+
+Observation:
+The ping command was used to verify whether the system has active network connectivity.
+It sends ICMP packets to the specified host and reports whether replies are received successfully.
+The result shows packet transmission statistics and response times, which help assess connectivity and basic network performance.
+From the output, I confirmed that the Linux system was able to reach the internet successfully.
