@@ -1,0 +1,169 @@
+==============================
+Question 2 - Secure Project Workspace Setup
+==============================
+
+1. Umask Value
+Command Used:
+umask
+
+Output:
+0022
+
+Observation:
+The umask command was used to check the default permission mask of the current Linux session.
+A umask value of 0022 means that newly created directories normally receive 755 permissions and newly created files receive 644 permissions in a standard Linux filesystem.
+This command is useful because it explains the default access rights applied during file and directory creation.
+The umask value was recorded before setting up the project workspace.
+
+
+2. Directory Structure Created
+Command Used:
+mkdir -p project_workspace/docs project_workspace/src project_workspace/reports
+ls -R project_workspace
+
+Output:
+project_workspace:
+docs  reports  src
+
+project_workspace/docs:
+
+project_workspace/reports:
+
+project_workspace/src:
+
+Observation:
+A secure project workspace was created using the mkdir -p command.
+The workspace was organized into three subdirectories: docs for documentation, src for source-related files, and reports for report files.
+The ls -R command was used to verify the complete directory hierarchy recursively.
+This confirms that the required project workspace structure was created successfully.
+
+
+3. Sample Files Created
+Command Used:
+touch project_workspace/docs/plan.txt
+touch project_workspace/src/notes.txt
+echo "Project planning document" > project_workspace/docs/plan.txt
+echo "Source notes for project workspace" > project_workspace/src/notes.txt
+
+Output:
+Files were created successfully inside the docs and src directories.
+
+Observation:
+Two sample files were created to simulate project-related data stored inside the workspace.
+The file plan.txt was created inside the docs directory to represent project documentation, and notes.txt was created inside the src directory to represent source notes.
+The echo command with output redirection was used to insert sample content into both files.
+These files were then used for permission and ownership analysis.
+
+
+4. File Permissions Before Modification
+Command Used:
+ls -l project_workspace
+ls -l project_workspace/docs
+ls -l project_workspace/src
+
+Output:
+total 0
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 14:07 docs
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 14:05 reports
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 14:07 src
+
+total 0
+-rwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 26 Jul  3 14:07 plan.txt
+
+total 0
+-rwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 35 Jul  3 14:07 notes.txt
+
+Observation:
+The ls -l command was used to inspect the default permissions assigned to the newly created directories and files.
+The output showed that the directories and files were created with rwxrwxrwx permissions, which correspond to 777.
+This differs from the standard permissions expected from a Linux filesystem with umask 0022 and indicates that the workspace is located on a mounted Windows filesystem under WSL.
+This step established the initial access rights before attempting to apply more secure permission settings.
+
+
+5. File Permissions After Modification
+Command Used:
+chmod 750 project_workspace
+chmod 750 project_workspace/docs
+chmod 750 project_workspace/src
+chmod 750 project_workspace/reports
+chmod 640 project_workspace/docs/plan.txt
+chmod 640 project_workspace/src/notes.txt
+
+Verification Commands:
+ls -ld project_workspace
+ls -ld project_workspace/docs project_workspace/src project_workspace/reports
+ls -l project_workspace/docs
+ls -l project_workspace/src
+
+Output:
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 14:05 project_workspace
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 14:07 project_workspace/docs
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 14:05 project_workspace/reports
+drwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 4096 Jul  3 14:07 project_workspace/src
+
+total 0
+-rwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 26 Jul  3 14:07 plan.txt
+
+total 0
+-rwxrwxrwx 1 sudarshan_patil_h_j sudarshan_patil_h_j 35 Jul  3 14:07 notes.txt
+
+Observation:
+The chmod command was used to apply secure permissions to the workspace.
+The intended permission settings were 750 for directories and 640 for files, which would normally restrict access to the owner and allow limited access to the group.
+However, after verification, the displayed permissions remained 777 for both directories and files.
+This happened because the workspace is stored under /mnt/c in WSL, where permission handling is affected by the mounted Windows filesystem and may not fully reflect standard Linux chmod behavior.
+
+
+6. Ownership Details
+Command Used:
+stat project_workspace
+stat project_workspace/docs/plan.txt
+stat project_workspace/src/notes.txt
+
+Output:
+File: project_workspace
+Size: 4096            Blocks: 0          IO Block: 4096   directory
+Device: 0,67    Inode: 12103423999995946  Links: 1
+Access: (0777/drwxrwxrwx)  Uid: ( 1000/sudarshan_patil_h_j)   Gid: ( 1000/sudarshan_patil_h_j)
+Access: 2026-07-03 14:07:39.286865300 +0000
+Modify: 2026-07-03 14:05:30.942355400 +0000
+Change: 2026-07-03 14:07:59.386740000 +0000
+Birth: -
+
+File: project_workspace/docs/plan.txt
+Size: 26              Blocks: 0          IO Block: 4096   regular file
+Device: 0,67    Inode: 16044073673944899  Links: 1
+Access: (0777/-rwxrwxrwx)  Uid: ( 1000/sudarshan_patil_h_j)   Gid: ( 1000/sudarshan_patil_h_j)
+Access: 2026-07-03 14:07:13.333260500 +0000
+Modify: 2026-07-03 14:07:13.333260500 +0000
+Change: 2026-07-03 14:07:59.469519900 +0000
+Birth: -
+
+File: project_workspace/src/notes.txt
+Size: 35              Blocks: 0          IO Block: 4096   regular file
+Device: 0,67    Inode: 7318349395934498  Links: 1
+Access: (0777/-rwxrwxrwx)  Uid: ( 1000/sudarshan_patil_h_j)   Gid: ( 1000/sudarshan_patil_h_j)
+Access: 2026-07-03 14:07:13.351354000 +0000
+Modify: 2026-07-03 14:07:13.351354000 +0000
+Change: 2026-07-03 14:07:59.499962000 +0000
+Birth: -
+
+Observation:
+The stat command was used to collect detailed metadata about the workspace and files.
+It provided inode information, file size, timestamps, ownership details, and permission bits.
+From the output, the owner and group of the workspace and both files are sudarshan_patil_h_j, confirming that the current user owns the created project workspace.
+The metadata also confirms that the permission display remained 777 in the WSL mounted environment.
+
+
+7. Explanation of How Permissions Protect Project Data
+Explanation:
+Linux permissions are used to control which users can read, write, or execute files and directories.
+For a secure project workspace, directories are commonly assigned permission 750 so that the owner has full access, the group has read and execute access, and others have no access.
+Files are commonly assigned permission 640 so that the owner can read and modify them, the group can only read them, and others cannot access them at all.
+This type of permission setup helps protect project documents, source files, and reports from unauthorized viewing or modification by other users on the system.
+
+Conclusion:
+A project workspace was successfully created with separate folders for documentation, source files, and reports.
+The workspace owner and file metadata were verified using ls and stat commands, and the default umask value was recorded.
+Although chmod commands were used to apply secure permissions, the displayed permissions remained unchanged because the workspace was created on a Windows-mounted filesystem in WSL.
+Conceptually, the intended secure permission model for this workspace is 750 for directories and 640 for files, which would provide better protection for project data on a standard Linux filesystem.
