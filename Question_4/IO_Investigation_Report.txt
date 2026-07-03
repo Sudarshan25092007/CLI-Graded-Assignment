@@ -1,0 +1,188 @@
+==============================
+Question 4 - File Access and I/O Investigation
+==============================
+
+1. Objective
+The purpose of this investigation was to understand how Linux handles file access and input/output operations.
+The experiment focused on identifying open files, observing file descriptors, performing output and error redirection, and examining process resource limits.
+This helps explain how Linux manages file I/O in real-world system and application environments.
+
+
+2. Sample Log File Creation
+Commands Used:
+echo "Initial log entry" > app.log
+cat app.log
+
+Output:
+Initial log entry
+
+Observation:
+A sample log file named app.log was created to simulate an application log file.
+The file was then displayed using the cat command to verify its contents.
+This file was later used to investigate file access, open file descriptors, and monitoring behavior using Linux utilities.
+Creating a real file for the experiment made the I/O investigation more practical and realistic.
+
+
+3. Open Files Identified
+Commands Used:
+tail -f app.log &
+lsof app.log
+
+Output:
+COMMAND PID                USER   FD   TYPE DEVICE SIZE/OFF              NODE NAME
+tail    779 sudarshan_patil_h_j    3r   REG   0,67       18 47006321110808067 app.log
+
+Observation:
+The command tail -f app.log was run in the background to keep the log file open continuously.
+The lsof app.log command was then used to identify which process currently had the file open.
+The output shows that the tail process with PID 779 had app.log open using file descriptor 3 in read mode.
+This confirms that Linux tracks open files on a per-process basis and allows administrators to inspect them using lsof.
+
+
+4. Open Files of the Process
+Command Used:
+lsof -p 779
+
+Output:
+COMMAND PID                USER   FD      TYPE DEVICE SIZE/OFF              NODE NAME
+tail    779 sudarshan_patil_h_j  cwd       DIR   0,67     4096 42502721483391608 /mnt/c/Users/Darshan Patil H J/Desktop/Linux-Assignment/Question_4
+tail    779 sudarshan_patil_h_j  rtd       DIR   8,48     4096                 2 /
+tail    779 sudarshan_patil_h_j  txt       REG   8,48    64032              2097 /usr/bin/tail
+tail    779 sudarshan_patil_h_j  mem       REG   8,48  2125328             12801 /usr/lib/x86_64-linux-gnu/libc.so.6
+tail    779 sudarshan_patil_h_j  mem       REG   8,48   360460              2599 /usr/lib/locale/C.utf8/LC_CTYPE
+tail    779 sudarshan_patil_h_j  mem       REG   8,48       50              2606 /usr/lib/locale/C.utf8/LC_NUMERIC
+tail    779 sudarshan_patil_h_j  mem       REG   8,48     3360              2609 /usr/lib/locale/C.utf8/LC_TIME
+tail    779 sudarshan_patil_h_j  mem       REG   8,48     1406              2598 /usr/lib/locale/C.utf8/LC_COLLATE
+tail    779 sudarshan_patil_h_j  mem       REG   8,48      270              2604 /usr/lib/locale/C.utf8/LC_MONETARY
+tail    779 sudarshan_patil_h_j  mem       REG   8,48       48              2603 /usr/lib/locale/C.utf8/LC_MESSAGES/SYS_LC_MESSAGES
+tail    779 sudarshan_patil_h_j  mem       REG   8,48       34              2607 /usr/lib/locale/C.utf8/LC_PAPER
+tail    779 sudarshan_patil_h_j  mem       REG   8,48    27028             12517 /usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache
+tail    779 sudarshan_patil_h_j  mem       REG   8,48       62              2605 /usr/lib/locale/C.utf8/LC_NAME
+tail    779 sudarshan_patil_h_j  mem       REG   8,48      127              2597 /usr/lib/locale/C.utf8/LC_ADDRESS
+tail    779 sudarshan_patil_h_j  mem       REG   8,48       47              2608 /usr/lib/locale/C.utf8/LC_TELEPHONE
+tail    779 sudarshan_patil_h_j  mem       REG   8,48       23              2601 /usr/lib/locale/C.utf8/LC_MEASUREMENT
+tail    779 sudarshan_patil_h_j  mem       REG   8,48      258              2600 /usr/lib/locale/C.utf8/LC_IDENTIFICATION
+tail    779 sudarshan_patil_h_j  mem       REG   8,48   236616             12598 /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+tail    779 sudarshan_patil_h_j    0u      CHR  136,0      0t0                 3 /dev/pts/0
+tail    779 sudarshan_patil_h_j    1u      CHR  136,0      0t0                 3 /dev/pts/0
+tail    779 sudarshan_patil_h_j    2u      CHR  136,0      0t0                 3 /dev/pts/0
+tail    779 sudarshan_patil_h_j    3r      REG   0,67       18 47006321110808067 /mnt/c/Users/Darshan Patil H J/Desktop/Linux-Assignment/Question_4/app.log
+tail    779 sudarshan_patil_h_j    4r  a_inode   0,15        0                40 inotify
+
+Observation:
+The lsof -p command was used to list all open files associated with the tail process.
+The output shows the process executable, memory-mapped libraries, terminal device files, the monitored app.log file, and an inotify descriptor.
+This demonstrates that a running Linux process may keep multiple types of files and resources open at the same time.
+It also shows how lsof can be used to inspect the file activity of a specific process in detail.
+
+
+5. File Descriptor Observations
+Command Used:
+ls -l /proc/779/fd
+
+Output:
+total 0
+lrwx------ 1 sudarshan_patil_h_j sudarshan_patil_h_j 64 Jul  3 15:57 0 -> /dev/pts/0
+lrwx------ 1 sudarshan_patil_h_j sudarshan_patil_h_j 64 Jul  3 15:57 1 -> /dev/pts/0
+lrwx------ 1 sudarshan_patil_h_j sudarshan_patil_h_j 64 Jul  3 15:57 2 -> /dev/pts/0
+lr-x------ 1 sudarshan_patil_h_j sudarshan_patil_h_j 64 Jul  3 15:57 3 -> '/mnt/c/Users/Darshan Patil H J/Desktop/Linux-Assignment/Question_4/app.log'
+lr-x------ 1 sudarshan_patil_h_j sudarshan_patil_h_j 64 Jul  3 15:57 4 -> anon_inode:inotify
+
+Observation:
+The /proc/<PID>/fd directory was used to inspect the file descriptors of the tail process.
+Descriptor 0 represents standard input, descriptor 1 represents standard output, and descriptor 2 represents standard error, all attached to the terminal device /dev/pts/0.
+Descriptor 3 points to app.log, which confirms that the file is currently open by the process.
+Descriptor 4 points to an inotify object, which is used by tail -f to monitor changes to the file.
+This demonstrates that Linux represents open files and I/O resources through numbered file descriptors.
+
+
+6. Output Redirection Result
+Commands Used:
+echo "This line is written using output redirection." > output.txt
+cat output.txt
+
+Output:
+This line is written using output redirection.
+
+Observation:
+The > operator was used to redirect the standard output of the echo command into a file named output.txt.
+This created the file and stored the text inside it instead of printing it to the terminal.
+The cat command was then used to verify the contents of the file.
+This demonstrates how Linux allows command output to be redirected from standard output to a regular file.
+
+
+7. Append Redirection Result
+Commands Used:
+echo "This line is appended to the same file." >> output.txt
+cat output.txt
+
+Output:
+This line is written using output redirection.
+This line is appended to the same file.
+
+Observation:
+The >> operator was used to append additional text to the existing output.txt file.
+Unlike >, which overwrites the file, >> preserves the existing contents and adds new data at the end.
+The cat command confirmed that both lines were present in the file after the append operation.
+This demonstrates how Linux supports appending output to an existing file without losing previously stored data.
+
+
+8. Error Redirection Result
+Commands Used:
+cat missing_file.txt 2> error.txt
+cat error.txt
+
+Output:
+cat: missing_file.txt: No such file or directory
+
+Observation:
+The command attempted to read a file that does not exist, which generated an error message.
+The 2> operator redirected the standard error stream of the cat command into the file error.txt.
+The contents of error.txt were then displayed to verify that the error message had been captured successfully.
+This demonstrates how Linux separates standard output and standard error into different streams and allows them to be redirected independently.
+
+
+9. Resource Limits Observed
+Command Used:
+ulimit -a
+
+Output:
+real-time non-blocking time  (microseconds, -R) unlimited
+core file size              (blocks, -c) 0
+data seg size               (kbytes, -d) unlimited
+scheduling priority                 (-e) 0
+file size                   (blocks, -f) unlimited
+pending signals                     (-i) 15297
+max locked memory           (kbytes, -l) 65536
+max memory size             (kbytes, -m) unlimited
+open files                          (-n) 10240
+pipe size                (512 bytes, -p) 8
+POSIX message queues         (bytes, -q) 819200
+real-time priority                  (-r) 0
+stack size                  (kbytes, -s) 8192
+cpu time                   (seconds, -t) unlimited
+max user processes                  (-u) 15297
+virtual memory              (kbytes, -v) unlimited
+file locks                          (-x) unlimited
+
+Observation:
+The ulimit -a command was used to display the resource limits of the current shell environment.
+These limits include the maximum number of open files, stack size, memory locking limit, process count, and other system constraints.
+For this system, the open file limit was 10240, which determines how many files a process can keep open simultaneously.
+Such limits are important because they affect application scalability, process behavior, and system stability during heavy I/O activity.
+
+
+10. Explanation of How Linux Manages File I/O
+Linux manages file I/O using file descriptors, which are small integer values associated with open files and I/O streams.
+Every process typically starts with three standard file descriptors: 0 for standard input, 1 for standard output, and 2 for standard error.
+When a process opens a file, Linux assigns it another file descriptor and maintains the relationship through the kernel.
+Commands like lsof and the /proc/<PID>/fd interface help inspect these open file descriptors.
+Linux also supports redirection operators such as >, >>, and 2> to route output and errors into files instead of the terminal.
+This design makes file handling flexible and efficient for both system processes and user applications.
+
+
+11. Conclusion
+The investigation successfully demonstrated how Linux handles file access and input/output operations.
+Open files were identified using lsof, file descriptors were inspected through the /proc filesystem, and output and error redirection were tested using shell operators.
+Resource limits were also observed using ulimit, showing the limits that affect process-level I/O behavior.
+Overall, the experiment provided a practical understanding of how Linux manages files, descriptors, and I/O streams during program execution.
