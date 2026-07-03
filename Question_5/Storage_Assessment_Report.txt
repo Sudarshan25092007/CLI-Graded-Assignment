@@ -1,0 +1,139 @@
+==============================
+Question 5 - Storage Health Assessment and Documentation
+==============================
+
+1. Objective
+The purpose of this task was to assess the storage resources of the Linux environment and document the findings.
+The investigation focused on identifying available storage devices, mounted file systems, disk usage, inode utilization, and overall storage health.
+The report was prepared to understand whether the current environment is suitable for deploying and running applications efficiently.
+
+
+2. Available Storage Devices
+Command Used:
+lsblk
+
+Output:
+NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+sda      8:0    0 388.6M  1 disk
+sdb      8:16   0   186M  1 disk
+sdc      8:32   0     1G  0 disk [SWAP]
+sdd      8:48   0     1T  0 disk /mnt/wslg/distro
+                                      /
+
+Observation:
+The lsblk command was used to display the available block storage devices and their mount points.
+The system shows multiple block devices, including small supporting disks, a swap device, and a main storage disk.
+The primary storage device visible in this environment is sdd with a size of 1 TB, and it is associated with the main Linux filesystem.
+This output helps identify the storage devices available to the WSL-based Linux environment.
+
+
+3. Mounted File Systems and Disk Usage Statistics
+Command Used:
+df -h
+
+Output:
+Filesystem      Size  Used Avail Use% Mounted on
+none            1.9G     0  1.9G   0% /usr/lib/modules/6.6.87.2-microsoft-standard-WSL2
+none            1.9G  4.0K  1.9G   1% /mnt/wsl
+drivers         456G  431G   26G  95% /usr/lib/wsl/drivers
+/dev/sdd       1007G  2.0G  954G   1% /
+none            1.9G   80K  1.9G   1% /mnt/wslg
+none            1.9G     0  1.9G   0% /usr/lib/wsl/lib
+rootfs          1.9G  2.7M  1.9G   1% /init
+none            1.9G  508K  1.9G   1% /run
+none            1.9G     0  1.9G   0% /run/lock
+none            1.9G     0  1.9G   0% /run/shm
+none            1.9G   76K  1.9G   1% /mnt/wslg/versions.txt
+none            1.9G   76K  1.9G   1% /mnt/wslg/doc
+C:\             456G  431G   26G  95% /mnt/c
+tmpfs           384M   20K  384M   1% /run/user/1000
+
+Observation:
+The df -h command was used to examine mounted file systems and their storage usage in a human-readable format.
+The root Linux filesystem mounted on /dev/sdd has a total size of approximately 1007 GB, of which only about 2.0 GB is currently used, leaving around 954 GB free.
+The mounted Windows C: drive is visible at /mnt/c with 456 GB total space, 431 GB used, and only 26 GB free, resulting in 95% usage.
+This indicates that while the Linux root filesystem is in very healthy condition, the mounted Windows drive is heavily utilized and may require cleanup if it is being used for project storage.
+
+
+4. Inode Utilization
+Command Used:
+df -i
+
+Output:
+Filesystem      Inodes   IUsed    IFree IUse% Mounted on
+none            490780       5   490775    1% /usr/lib/modules/6.6.87.2-microsoft-standard-WSL2
+none            490780       2   490778    1% /mnt/wsl
+drivers            999 -999001 1000000     - /usr/lib/wsl/drivers
+/dev/sdd       67108864   49803 67059061    1% /
+none            490780      33   490747    1% /mnt/wslg
+none            490780       7   490773    1% /usr/lib/wsl/lib
+rootfs          489520      12   489508    1% /init
+none            490780     535   490245    1% /run
+none            490780       2   490778    1% /run/lock
+none            490780       1   490779    1% /run/shm
+none            490780      52   490728    1% /mnt/wslg/versions.txt
+none            490780      52   490728    1% /mnt/wslg/doc
+C:\                999 -999001 1000000     - /mnt/c
+tmpfs            98156      43    98113    1% /run/user/1000
+
+Observation:
+The df -i command was used to check inode usage across mounted file systems.
+The main Linux filesystem /dev/sdd has 67,108,864 total inodes, of which only 49,803 are currently used, leaving over 67 million free inodes.
+This indicates extremely low inode consumption and shows that the Linux environment is far from exhausting inode resources.
+The Windows-mounted filesystems such as /mnt/c display non-standard inode values because they are exposed through WSL and do not behave like native Linux filesystems in inode reporting.
+
+
+5. Mounted File System Details
+Command Used:
+findmnt
+
+Output Summary:
+The findmnt command displayed the mount hierarchy of the WSL environment, including the Linux root filesystem, WSL-specific overlay mounts, temporary filesystems, runtime mounts, and the Windows C: drive mounted at /mnt/c.
+Important mount points observed include:
+- / mounted from /dev/sdd with ext4 filesystem
+- /mnt/c mounted from C:\ using a 9p-based WSL integration layer
+- /run, /dev, /proc, and /sys mounted as temporary or virtual Linux system filesystems
+- WSL-specific mounts such as /mnt/wsl, /mnt/wslg, and /usr/lib/wsl
+
+Observation:
+The findmnt output shows that this environment is a WSL-based Linux system layered on top of Windows.
+The root filesystem uses ext4, which behaves like a normal Linux filesystem for most system operations.
+The Windows drive is mounted separately under /mnt/c and is integrated into Linux through the WSL mount system.
+Understanding these mount points is important because storage behavior, permissions, and inode reporting may differ between the native Linux filesystem and Windows-mounted paths.
+
+
+6. Additional Storage Observation
+Command Used:
+du -sh ~
+
+Output:
+116K    /home/sudarshan_patil_h_j
+
+Observation:
+The du -sh command was used to estimate the total disk usage of the user’s home directory.
+The home directory currently occupies only 116 KB, which is extremely small.
+This suggests that the Linux home directory itself is not consuming significant storage space at the moment.
+Most storage usage relevant to the assignment appears to be on the mounted Windows drive rather than inside the Linux home directory.
+
+
+7. Storage Health Observations
+The storage assessment shows that the main Linux root filesystem has very healthy capacity and inode availability.
+The root filesystem mounted on /dev/sdd has approximately 954 GB free and only 1% inode utilization, which means it is well suited for application deployment and development work.
+The most significant storage concern is the mounted Windows C: drive at /mnt/c, which is already at 95% usage with only around 26 GB of free space remaining.
+If large project files, datasets, logs, or application artifacts are stored on /mnt/c, storage pressure may increase further.
+From a Linux storage perspective, the WSL root filesystem is in good condition, but the Windows-mounted storage should be monitored carefully.
+
+
+8. Recommendations for Improving Storage Utilization
+1. Reduce usage on the Windows C: drive mounted at /mnt/c by removing unnecessary files, temporary folders, old downloads, and unused project artifacts.
+2. Prefer storing Linux-specific experiments, logs, and temporary project data inside the native Linux filesystem rather than only on /mnt/c, especially when Linux permissions or filesystem behavior matter.
+3. Regularly monitor disk usage using df -h and directory usage using du -sh or du -h to identify large folders before storage becomes critical.
+4. Keep an eye on large development assets such as node_modules folders, build outputs, screenshots, and cached files, as these can quickly consume space.
+5. Maintain enough free space on the Windows drive to avoid performance issues and ensure WSL and development tools continue to function smoothly.
+
+
+9. Conclusion
+The storage assessment successfully identified the available storage devices, mounted file systems, disk usage, inode usage, and overall storage health of the Linux environment.
+The main Linux root filesystem is in a strong state with large free capacity and very low inode usage, making it suitable for application deployment.
+However, the mounted Windows C: drive is heavily utilized and should be cleaned or monitored if it is used for storing development files and project data.
+Overall, the Linux environment appears healthy, but storage management on the Windows side remains important for long-term stability and efficient usage.
